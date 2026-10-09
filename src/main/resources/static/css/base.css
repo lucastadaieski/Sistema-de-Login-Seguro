@@ -1,0 +1,151 @@
+/*
+ * CSS ESTRUTURAL (layout, espaçamentos, componentes).
+ *
+ * Este arquivo NÃO define cores nem fontes diretamente: usa apenas
+ * variáveis CSS (var(--...)). Os valores das variáveis ficam em
+ * static/temas/<nome>/tema.css. Assim um tema novo só precisa redefinir
+ * as variáveis, sem copiar ou alterar este arquivo.
+ *
+ * Variáveis que todo tema deve definir:
+ *   --cor-fundo, --cor-superficie, --cor-texto, --cor-texto-suave,
+ *   --cor-borda, --cor-primaria, --cor-primaria-texto, --cor-secundaria,
+ *   --cor-sucesso, --cor-erro, --cor-alerta, --fonte, --raio, --sombra
+ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+    font-family: var(--fonte);
+    background: var(--cor-fundo);
+    color: var(--cor-texto);
+    line-height: 1.5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+a { color: var(--cor-primaria); }
+
+h1, h2 { line-height: 1.2; margin-top: 0; }
+h1 { font-size: 1.8rem; }
+h2 { font-size: 1.2rem; }
+
+/* ---------- Cabeçalho ---------- */
+.cabecalho {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    background: var(--cor-superficie);
+    border-bottom: 1px solid var(--cor-borda);
+}
+.marca { font-weight: 700; font-size: 1.1rem; text-decoration: none; color: var(--cor-texto); }
+.menu { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+.menu a { text-decoration: none; }
+.usuario-logado { color: var(--cor-texto-suave); font-size: 0.9rem; }
+
+/* ---------- Conteúdo ---------- */
+.conteudo { flex: 1; width: 100%; max-width: 1100px; margin: 0 auto; padding: 32px 16px; }
+.subtitulo { color: var(--cor-texto-suave); margin-top: -8px; }
+
+.rodape {
+    text-align: center;
+    padding: 16px;
+    font-size: 0.85rem;
+    color: var(--cor-texto-suave);
+    border-top: 1px solid var(--cor-borda);
+}
+
+/* ---------- Cartões e grade ---------- */
+.cartao {
+    background: var(--cor-superficie);
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    box-shadow: var(--sombra);
+    padding: 24px;
+    margin-bottom: 20px;
+}
+.destaque { text-align: center; padding: 40px 24px; }
+.grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.formulario { max-width: 440px; margin: 0 auto; }
+.centralizado { text-align: center; }
+
+.numero { display: flex; flex-direction: column; align-items: center; }
+.numero .valor { font-size: 2.4rem; font-weight: 700; color: var(--cor-primaria); }
+.numero .rotulo { color: var(--cor-texto-suave); }
+
+.dados { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; }
+.dados dt { color: var(--cor-texto-suave); }
+.dados dd { margin: 0; overflow-wrap: anywhere; }
+
+.acoes { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+
+/* ---------- Formulários ---------- */
+label { display: block; margin: 14px 0 4px; font-weight: 600; font-size: 0.95rem; }
+input, select {
+    width: 100%;
+    padding: 10px 12px;
+    font: inherit;
+    color: var(--cor-texto);
+    background: var(--cor-fundo);
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+}
+input:focus, select:focus { outline: 2px solid var(--cor-primaria); outline-offset: 1px; }
+input:disabled { opacity: 0.7; }
+.campo-erro { border-color: var(--cor-erro); }
+.msg-erro { display: block; color: var(--cor-erro); font-size: 0.85rem; margin-top: 4px; }
+.dica { display: block; color: var(--cor-texto-suave); font-size: 0.8rem; margin-top: 4px; }
+.rodape-form { text-align: center; margin-top: 18px; }
+.form-inline { display: inline-flex; gap: 6px; align-items: center; margin: 0; }
+.form-inline select { width: auto; padding: 4px 8px; }
+
+/* ---------- Botões ---------- */
+.botao {
+    display: inline-block;
+    padding: 10px 18px;
+    font: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    color: var(--cor-primaria-texto);
+    background: var(--cor-primaria);
+    border: 1px solid var(--cor-primaria);
+    border-radius: var(--raio);
+}
+.botao:hover { filter: brightness(1.08); }
+.botao-secundario { background: transparent; color: var(--cor-primaria); }
+.botao-perigo { background: var(--cor-erro); border-color: var(--cor-erro); color: #fff; }
+.botao-pequeno { padding: 4px 10px; font-size: 0.85rem; }
+.botao-largo { width: 100%; margin-top: 20px; }
+form .botao { margin-top: 18px; }
+.form-inline .botao { margin-top: 0; }
+
+/* ---------- Alertas e etiquetas ---------- */
+.alerta { padding: 12px 16px; border-radius: var(--raio); margin-bottom: 16px; border: 1px solid; }
+.alerta-sucesso { color: var(--cor-sucesso); border-color: var(--cor-sucesso); }
+.alerta-erro { color: var(--cor-erro); border-color: var(--cor-erro); }
+
+.etiqueta {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: var(--cor-secundaria);
+    color: var(--cor-texto);
+}
+.etiqueta-ok { background: var(--cor-sucesso); color: #fff; }
+.etiqueta-erro { background: var(--cor-erro); color: #fff; }
+.etiqueta-alerta { background: var(--cor-alerta); color: #000; }
+
+/* ---------- Tabela ---------- */
+.tabela-container { overflow-x: auto; background: var(--cor-superficie); border: 1px solid var(--cor-borda); border-radius: var(--raio); }
+.tabela { width: 100%; border-collapse: collapse; }
+.tabela th, .tabela td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--cor-borda); vertical-align: middle; }
+.tabela th { font-size: 0.85rem; color: var(--cor-texto-suave); }
+.acoes-tabela form, .acoes-tabela .dica { display: inline-flex; margin: 3px 6px 3px 0; vertical-align: middle; }

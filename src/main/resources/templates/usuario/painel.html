@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layouts/base}">
+<head>
+    <title>Painel</title>
+</head>
+<body>
+<section layout:fragment="conteudo">
+    <h1>Olá, <span th:text="${usuario.nome}">Nome</span>!</h1>
+
+    <div class="grade">
+        <div class="cartao">
+            <h2>Sua conta</h2>
+            <dl class="dados">
+                <dt>E-mail</dt>
+                <dd th:text="${usuario.email}">email</dd>
+                <dt>Perfil</dt>
+                <dd><span class="etiqueta" th:text="${usuario.perfil.descricao}">Usuário</span></dd>
+                <dt>Conta criada em</dt>
+                <dd th:text="${@datas.formatar(usuario.criadoEm)}">-</dd>
+                <dt>Último acesso</dt>
+                <dd th:text="${@datas.formatar(usuario.ultimoLogin)}">-</dd>
+            </dl>
+            <a class="botao" th:href="@{/perfil}">Editar perfil</a>
+        </div>
+
+        <!-- Blocos exibidos conforme o perfil (respeitando a hierarquia) -->
+        <div class="cartao" sec:authorize="hasRole('MODERADOR')">
+            <h2>Moderação</h2>
+            <p>Você pode consultar as contas e ativar ou desativar usuários.</p>
+            <a class="botao" th:href="@{/moderador/usuarios}">Gerenciar usuários</a>
+        </div>
+
+        <div class="cartao" sec:authorize="hasRole('ADMIN')">
+            <h2>Administração</h2>
+            <p>Visão geral do sistema, alteração de perfis e exclusão de contas.</p>
+            <a class="botao" th:href="@{/admin}">Abrir administração</a>
+        </div>
+    </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,22 @@
+# Credenciais locais (NUNCA versionar)
+.env
+application-local.properties
+
+# Build
+target/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+out/
+
+# VS Code / Eclipse
+.vscode/
+.classpath
+.project
+.settings/
+
+# Sistema
+.DS_Store
+Thumbs.db
+*.log

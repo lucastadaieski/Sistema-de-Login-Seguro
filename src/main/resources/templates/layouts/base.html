@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<!--
+  Layout base de TODAS as páginas (Thymeleaf Layout Dialect).
+
+  As páginas usam layout:decorate="~{layouts/base}" e preenchem apenas o
+  fragmento "conteudo". Cabeçalho, menu e rodapé ficam em templates/fragments.
+
+  Tema visual: o CSS estrutural (css/base.css) usa somente variáveis CSS;
+  o arquivo temas/<temaAtivo>/tema.css define os valores dessas variáveis.
+  Trocar o tema = trocar o arquivo de variáveis, sem mexer no HTML.
+-->
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title layout:title-pattern="$CONTENT_TITLE · Login Seguro">Login Seguro</title>
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <!-- "temaAtivo" é injetado em todas as páginas pelo TemaControllerAdvice -->
+    <link rel="stylesheet" th:href="@{/temas/{t}/tema.css(t=${temaAtivo ?: 'claro'})}">
+</head>
+<body>
+<header th:replace="~{fragments/cabecalho :: cabecalho}"></header>
+
+<main class="conteudo">
+    <div th:replace="~{fragments/alertas :: alertas}"></div>
+    <section layout:fragment="conteudo"></section>
+</main>
+
+<footer th:replace="~{fragments/rodape :: rodape}"></footer>
+</body>
+</html>

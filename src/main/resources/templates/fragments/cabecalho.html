@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<!--
+  Cabeçalho e menu. Os itens aparecem conforme o perfil do usuário
+  (sec:authorize), respeitando a hierarquia ADMIN > MODERADOR > USUARIO.
+  Importante: esconder o link é só conveniência visual; quem realmente
+  protege as rotas é o SecurityConfig.
+-->
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<header class="cabecalho" th:fragment="cabecalho">
+    <a class="marca" th:href="@{/}">&#128274; Login Seguro</a>
+
+    <nav class="menu">
+        <th:block sec:authorize="isAuthenticated()">
+            <a th:href="@{/painel}">Painel</a>
+            <a th:href="@{/perfil}">Meu perfil</a>
+            <a sec:authorize="hasRole('MODERADOR')" th:href="@{/moderador/usuarios}">Usuários</a>
+            <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin}">Administração</a>
+
+            <span class="usuario-logado" sec:authentication="name">email</span>
+
+            <!-- Logout via POST: o Thymeleaf inclui o token CSRF automaticamente -->
+            <form class="form-inline" th:action="@{/logout}" method="post">
+                <button type="submit" class="botao botao-secundario">Sair</button>
+            </form>
+        </th:block>
+
+        <th:block sec:authorize="!isAuthenticated()">
+            <a th:href="@{/login}">Entrar</a>
+            <a class="botao" th:href="@{/cadastro}">Criar conta</a>
+        </th:block>
+    </nav>
+</header>
+</body>
+</html>

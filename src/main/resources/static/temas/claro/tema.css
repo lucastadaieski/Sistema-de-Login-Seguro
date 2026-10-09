@@ -1,0 +1,17 @@
+/* Tema CLARO (padrão). Define apenas variáveis usadas por css/base.css. */
+:root {
+    --cor-fundo: #f4f6fa;
+    --cor-superficie: #ffffff;
+    --cor-texto: #1d2433;
+    --cor-texto-suave: #5b6478;
+    --cor-borda: #dde2ec;
+    --cor-primaria: #2457c5;
+    --cor-primaria-texto: #ffffff;
+    --cor-secundaria: #e7ecf7;
+    --cor-sucesso: #1e8a4c;
+    --cor-erro: #c62f2f;
+    --cor-alerta: #f2b705;
+    --fonte: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    --raio: 8px;
+    --sombra: 0 2px 8px rgba(20, 30, 60, 0.06);
+}

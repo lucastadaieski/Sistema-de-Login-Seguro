@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/base}">
+<head>
+    <title>Administração</title>
+</head>
+<body>
+<section layout:fragment="conteudo">
+    <h1>Administração</h1>
+
+    <div class="grade">
+        <div class="cartao numero" th:each="item : ${contagemPorPerfil}">
+            <span class="valor" th:text="${item.value}">0</span>
+            <span class="rotulo" th:text="|Perfil ${item.key.descricao}|">Perfil Usuário</span>
+        </div>
+        <div class="cartao numero">
+            <span class="valor" th:text="${sessoesAtivas}">0</span>
+            <span class="rotulo">Sessões no MongoDB</span>
+        </div>
+    </div>
+
+    <div class="cartao">
+        <h2>Configuração atual</h2>
+        <dl class="dados">
+            <dt>Tema padrão</dt>
+            <dd th:text="${temaPadrao}">claro</dd>
+            <dt>Temas disponíveis</dt>
+            <dd th:text="${#strings.listJoin(temasDisponiveis, ', ')}">claro, escuro</dd>
+        </dl>
+        <a class="botao" th:href="@{/moderador/usuarios}">Gerenciar usuários e perfis</a>
+    </div>
+</section>
+</body>
+</html>

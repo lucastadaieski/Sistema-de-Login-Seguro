@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<!-- Exibida pelo Spring Boot quando o Spring Security nega o acesso (HTTP 403) -->
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/base}">
+<head>
+    <title>Acesso negado</title>
+</head>
+<body>
+<section layout:fragment="conteudo">
+    <div class="cartao formulario centralizado">
+        <h1>403</h1>
+        <h2>Acesso negado</h2>
+        <p>Seu perfil não tem permissão para acessar esta página.</p>
+        <a class="botao" th:href="@{/painel}">Voltar ao painel</a>
+    </div>
+</section>
+</body>
+</html>

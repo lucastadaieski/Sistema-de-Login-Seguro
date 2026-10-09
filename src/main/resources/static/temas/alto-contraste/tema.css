@@ -1,0 +1,25 @@
+/*
+ * Tema ALTO CONTRASTE (acessibilidade).
+ * Exemplo de que um tema pode mudar também fonte, bordas e raios,
+ * não apenas cores, sem tocar no HTML nem no Java.
+ */
+:root {
+    --cor-fundo: #000000;
+    --cor-superficie: #000000;
+    --cor-texto: #ffffff;
+    --cor-texto-suave: #ffff00;
+    --cor-borda: #ffffff;
+    --cor-primaria: #ffff00;
+    --cor-primaria-texto: #000000;
+    --cor-secundaria: #333333;
+    --cor-sucesso: #00ff66;
+    --cor-erro: #ff4040;
+    --cor-alerta: #ffff00;
+    --fonte: Verdana, Arial, sans-serif;
+    --raio: 0;
+    --sombra: none;
+}
+
+/* Um tema pode acrescentar regras próprias além das variáveis */
+a { text-decoration: underline; }
+input, select { border-width: 2px; }

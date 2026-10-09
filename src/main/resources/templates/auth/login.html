@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/base}">
+<head>
+    <title>Entrar</title>
+</head>
+<body>
+<section layout:fragment="conteudo">
+    <div class="cartao formulario">
+        <h1>Entrar</h1>
+
+        <!-- Mensagens definidas pelo LoginFalhaHandler e pelo logout -->
+        <div class="alerta alerta-erro" th:if="${param.erro != null}">E-mail ou senha inválidos.</div>
+        <div class="alerta alerta-erro" th:if="${param.bloqueado != null}">
+            Conta bloqueada temporariamente por excesso de tentativas. Tente novamente mais tarde.
+        </div>
+        <div class="alerta alerta-erro" th:if="${param.inativo != null}">
+            Esta conta está desativada. Procure um moderador.
+        </div>
+        <div class="alerta alerta-sucesso" th:if="${param.saiu != null}">Você saiu do sistema.</div>
+
+        <!-- O POST para /login é processado pelo Spring Security -->
+        <form th:action="@{/login}" method="post" novalidate>
+            <label for="email">E-mail</label>
+            <input type="email" id="email" name="email" autocomplete="username" required autofocus>
+
+            <label for="senha">Senha</label>
+            <input type="password" id="senha" name="senha" autocomplete="current-password" required>
+
+            <button type="submit" class="botao botao-largo">Entrar</button>
+        </form>
+
+        <p class="rodape-form">Ainda não tem conta? <a th:href="@{/cadastro}">Cadastre-se</a></p>
+    </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layouts/base}">
+<head>
+    <title>Início</title>
+</head>
+<body>
+<section layout:fragment="conteudo">
+    <div class="cartao destaque">
+        <h1>Sistema de Login Seguro</h1>
+        <p>Cadastro, autenticação e controle de acesso por perfis, com senhas protegidas por
+            hash BCrypt e sessões armazenadas no MongoDB Atlas.</p>
+
+        <div class="acoes" sec:authorize="!isAuthenticated()">
+            <a class="botao" th:href="@{/login}">Entrar</a>
+            <a class="botao botao-secundario" th:href="@{/cadastro}">Criar conta</a>
+        </div>
+        <div class="acoes" sec:authorize="isAuthenticated()">
+            <a class="botao" th:href="@{/painel}">Ir para o painel</a>
+        </div>
+    </div>
+
+    <div class="grade">
+        <div class="cartao">
+            <h2>Usuário</h2>
+            <p>Acessa o próprio painel, edita seus dados, escolhe o tema e troca a senha.</p>
+        </div>
+        <div class="cartao">
+            <h2>Moderador</h2>
+            <p>Tudo do usuário, mais a listagem de contas e a ativação ou desativação de usuários.</p>
+        </div>
+        <div class="cartao">
+            <h2>Administrador</h2>
+            <p>Tudo do moderador, mais a alteração de perfis, a exclusão de contas e a visão geral do sistema.</p>
+        </div>
+    </div>
+</section>
+</body>
+</html>

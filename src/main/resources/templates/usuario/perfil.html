@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/base}">
+<head>
+    <title>Meu perfil</title>
+</head>
+<body>
+<section layout:fragment="conteudo">
+    <h1>Meu perfil</h1>
+
+    <div class="grade">
+        <!-- Dados pessoais e tema -->
+        <div class="cartao">
+            <h2>Dados e aparência</h2>
+            <form th:action="@{/perfil}" th:object="${perfilForm}" method="post" novalidate>
+                <label for="nome">Nome</label>
+                <input type="text" id="nome" th:field="*{nome}"
+                       th:classappend="${#fields.hasErrors('nome')} ? 'campo-erro'">
+                <span class="msg-erro" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></span>
+
+                <label>E-mail</label>
+                <input type="email" th:value="${usuario.email}" disabled>
+
+                <label for="tema">Tema visual</label>
+                <!-- A lista vem da configuração app.temas.disponiveis -->
+                <select id="tema" th:field="*{tema}">
+                    <option th:each="t : ${temasDisponiveis}" th:value="${t}" th:text="${t}">claro</option>
+                </select>
+
+                <button type="submit" class="botao">Salvar</button>
+            </form>
+        </div>
+
+        <!-- Troca de senha -->
+        <div class="cartao">
+            <h2>Trocar senha</h2>
+            <form th:action="@{/perfil/senha}" th:object="${trocaSenhaForm}" method="post" novalidate>
+                <label for="senhaAtual">Senha atual</label>
+                <input type="password" id="senhaAtual" name="senhaAtual" autocomplete="current-password"
+                       th:classappend="${#fields.hasErrors('senhaAtual')} ? 'campo-erro'">
+                <span class="msg-erro" th:if="${#fields.hasErrors('senhaAtual')}" th:errors="*{senhaAtual}"></span>
+
+                <label for="novaSenha">Nova senha</label>
+                <input type="password" id="novaSenha" name="novaSenha" autocomplete="new-password"
+                       th:classappend="${#fields.hasErrors('novaSenha')} ? 'campo-erro'">
+                <span class="msg-erro" th:if="${#fields.hasErrors('novaSenha')}" th:errors="*{novaSenha}"></span>
+
+                <label for="confirmacaoSenha">Confirmar nova senha</label>
+                <input type="password" id="confirmacaoSenha" name="confirmacaoSenha" autocomplete="new-password">
+                <span class="msg-erro" th:if="${#fields.hasErrors('confirmacaoSenha')}" th:errors="*{confirmacaoSenha}"></span>
+                <span class="msg-erro" th:if="${#fields.hasErrors('senhasConferem')}" th:errors="*{senhasConferem}"></span>
+
+                <button type="submit" class="botao">Alterar senha</button>
+            </form>
+        </div>
+    </div>
+</section>
+</body>
+</html>
