@@ -61,7 +61,7 @@ spring.session.mongodb.collection-name=sessoes
   "tema": "escuro",
   "criadoEm": ISODate("2026-10-08T22:00:00Z"),
   "ultimoLogin": ISODate("2026-10-08T22:05:00Z"),
-  "_class": "model.br.com.lucas.loginseguro.Usuario"
+   "_class": "br.com.lucas.loginseguro.model.Usuario"
 }
 ```
 
