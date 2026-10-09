@@ -4,7 +4,7 @@ Sistema web de autenticação e autorização desenvolvido com **Java 17, Spring
 
 Permite cadastro, login e logout de usuários, com senhas protegidas por hash BCrypt, controle de acesso por três perfis (Usuário, Moderador e Administrador), sessões armazenadas no MongoDB e uma camada visual desacoplada, preparada para receber novos temas sem alterar código Java.
 
-[![CI](https://github.com/SEU-USUARIO/login-seguro/actions/workflows/ci.yml/badge.svg)](https://github.com/SEU-USUARIO/login-seguro/actions)
+[![CI](https://github.com/lucastadaieski/Sistema-de-Login-Seguro/actions/workflows/ci.yml/badge.svg)](https://github.com/lucastadaieski/Sistema-de-Login-Seguro/actions)
 
 ---
 
@@ -125,8 +125,8 @@ Resumo (o passo a passo detalhado, com explicações de segurança, está em [`d
 ### 1. Clonar o repositório
 
 ```bash
-git clone https://github.com/SEU-USUARIO/login-seguro.git
-cd login-seguro
+git clone https://github.com/lucastadaieski/Sistema-de-Login-Seguro.git
+cd Sistema-de-Login-Seguro
 ```
 
 ### 2. Criar o arquivo `.env`
@@ -159,7 +159,7 @@ O arquivo `.env` está no `.gitignore`, portanto **suas credenciais nunca vão p
 
 1. *File > Open* e selecione a pasta do projeto (o IntelliJ reconhece o `pom.xml` e baixa as dependências).
 2. Confirme o JDK em *File > Project Structure > SDK* (17 ou superior).
-3. Abra `src/main/java/br/com/lucas/loginseguro` e clique no botão ▶ ao lado de `main`.
+3. Abra `src/main/java/br/com/lucas/loginseguro/LoginSeguroApplication.java` e clique no botão ▶ ao lado de `main`.
 
 > O arquivo `.env` é procurado na pasta de trabalho da execução. No IntelliJ ela já é a raiz do projeto por padrão.
 
