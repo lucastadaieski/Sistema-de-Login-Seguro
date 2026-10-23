@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -23,6 +24,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
@@ -38,7 +40,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @EnabledIfEnvironmentVariable(named = "CI", matches = "true")
-@TestPropertySource(properties = {"app.admin.email=", "app.admin.senha="})
+@TestPropertySource(properties = {"app.admin.email=", "app.admin.senha=",
+        "app.jwt.segredo=chave-usada-somente-nos-testes-de-integracao"})
 class LoginSeguroIntegracaoTest {
 
     private static final String SENHA = "Senha123";
@@ -279,5 +282,49 @@ class LoginSeguroIntegracaoTest {
                         .param("tema", "escuro"))
                 .andExpect(redirectedUrl("/perfil"));
         assertThat(repository.findByEmail("joao@teste.com").orElseThrow().getTema()).isEqualTo("escuro");
+    }
+
+    @Test
+    void tecnicoNaoAcessaModeracaoNemAdministracao() throws Exception {
+        mvc.perform(get("/moderador/usuarios").with(user("tec@teste.com").roles("TECNICO")))
+                .andExpect(status().isForbidden());
+        mvc.perform(get("/admin").with(user("tec@teste.com").roles("TECNICO")))
+                .andExpect(status().isForbidden());
+    }
+
+    // ------------------------------------------------------------------
+    // API de token para os outros microsserviços
+    // ------------------------------------------------------------------
+
+    @Test
+    void apiEmiteTokenComCredenciaisCorretasSemCsrf() throws Exception {
+        Usuario tecnico = criar("tec@teste.com", Perfil.TECNICO);
+
+        mvc.perform(post("/api/auth/token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\": \"TEC@teste.com\", \"senha\": \"" + SENHA + "\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").isNotEmpty())
+                .andExpect(jsonPath("$.usuarioId").value(tecnico.getId()))
+                .andExpect(jsonPath("$.perfil").value("TECNICO"));
+    }
+
+    @Test
+    void apiRecusaSenhaErradaEContaATentativa() throws Exception {
+        criar("joao@teste.com", Perfil.USUARIO);
+
+        mvc.perform(post("/api/auth/token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\": \"joao@teste.com\", \"senha\": \"Errada123\"}"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.erro").value("E-mail ou senha inválidos"));
+
+        assertThat(repository.findByEmail("joao@teste.com").orElseThrow().getTentativasFalhas()).isEqualTo(1);
+    }
+
+    @Test
+    void apiNaoTemOutrasRotasLiberadas() throws Exception {
+        mvc.perform(get("/api/qualquer-coisa"))
+                .andExpect(status().isUnauthorized());
     }
 }
