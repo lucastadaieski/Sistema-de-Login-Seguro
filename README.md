@@ -2,7 +2,7 @@
 
 Sistema web de autenticação e autorização desenvolvido com **Java 17, Spring Boot 3, Spring Security, Thymeleaf e MongoDB Atlas**.
 
-Permite cadastro, login e logout de usuários, com senhas protegidas por hash BCrypt, controle de acesso por três perfis (Usuário, Moderador e Administrador), sessões armazenadas no MongoDB e uma camada visual desacoplada, preparada para receber novos temas sem alterar código Java.
+Permite cadastro, login e logout de usuários, com senhas protegidas por hash BCrypt, controle de acesso por quatro perfis (Usuário, Técnico, Moderador e Administrador), sessões armazenadas no MongoDB uma camada visual desacoplada, preparada para receber novos temas sem alterar código Java, e uma API que emite **tokens JWT** para outros microsserviços, como o [ThinDesk](https://github.com/lucastadaieski/sistema-de-chamados).
 
 [![CI](https://github.com/lucastadaieski/Sistema-de-Login-Seguro/actions/workflows/ci.yml/badge.svg)](https://github.com/lucastadaieski/Sistema-de-Login-Seguro/actions)
 
@@ -35,7 +35,7 @@ Permite cadastro, login e logout de usuários, com senhas protegidas por hash BC
 - Mensagem genérica de erro no login, para não revelar quais e-mails existem
 
 **Autorização**
-- Três perfis com hierarquia: `ADMIN > MODERADOR > USUARIO`
+- Quatro perfis com hierarquia: `ADMIN > MODERADOR > USUARIO` e `ADMIN > TECNICO > USUARIO`
 - Proteção em duas camadas: por rota (`SecurityConfig`) e por método (`@PreAuthorize`)
 - Menus e botões exibidos conforme o perfil (`sec:authorize` no Thymeleaf)
 - Páginas próprias para acesso negado (403) e página não encontrada (404)
@@ -67,6 +67,7 @@ Permite cadastro, login e logout de usuários, com senhas protegidas por hash BC
 | Spring Security 6 | Autenticação, autorização, CSRF, hash de senhas |
 | Spring Data MongoDB | Persistência dos usuários |
 | Spring Session MongoDB | Persistência das sessões |
+| Spring Security OAuth2 JOSE | Emissão de tokens JWT para outros microsserviços |
 | Bean Validation | Validação dos formulários |
 | Thymeleaf + Layout Dialect | Páginas HTML e layouts |
 | thymeleaf-extras-springsecurity6 | Controle de exibição por perfil |
@@ -78,16 +79,17 @@ Permite cadastro, login e logout de usuários, com senhas protegidas por hash BC
 
 ## Perfis e permissões
 
-| Recurso | Usuário | Moderador | Administrador |
-|---|:---:|:---:|:---:|
-| Painel (`/painel`) e perfil (`/perfil`) | ✅ | ✅ | ✅ |
-| Escolher tema e trocar senha | ✅ | ✅ | ✅ |
-| Listar usuários (`/moderador/usuarios`) | ❌ | ✅ | ✅ |
-| Ativar/desativar contas de usuários comuns | ❌ | ✅ | ✅ |
-| Ativar/desativar moderadores e administradores | ❌ | ❌ | ✅ |
-| Alterar perfil de outros usuários | ❌ | ❌ | ✅ |
-| Excluir contas | ❌ | ❌ | ✅ |
-| Painel de administração (`/admin`) | ❌ | ❌ | ✅ |
+| Recurso | Usuário | Técnico | Moderador | Administrador |
+|---|:---:|:---:|:---:|:---:|
+| Painel (`/painel`) e perfil (`/perfil`) | ✅ | ✅ | ✅ | ✅ |
+| Escolher tema e trocar senha | ✅ | ✅ | ✅ | ✅ |
+| Resolver chamados no ThinDesk | ❌ | ✅ | ❌ | ✅ |
+| Listar usuários (`/moderador/usuarios`) | ❌ | ❌ | ✅ | ✅ |
+| Ativar/desativar contas de usuários comuns | ❌ | ❌ | ✅ | ✅ |
+| Ativar/desativar técnicos, moderadores e administradores | ❌ | ❌ | ❌ | ✅ |
+| Alterar perfil de outros usuários | ❌ | ❌ | ❌ | ✅ |
+| Excluir contas | ❌ | ❌ | ❌ | ✅ |
+| Painel de administração (`/admin`) | ❌ | ❌ | ❌ | ✅ |
 
 Todo novo cadastro recebe o perfil **Usuário**. Somente um administrador pode promover alguém. O primeiro administrador é criado automaticamente na primeira execução (veja abaixo).
 
@@ -143,6 +145,7 @@ MONGODB_URI=mongodb+srv://USUARIO:SENHA@cluster0.xxxxx.mongodb.net/?retryWrites=
 MONGODB_DATABASE=loginseguro
 ADMIN_EMAIL=admin@loginseguro.com
 ADMIN_PASSWORD=Troque@Esta1Senha
+JWT_SECRET=<chave aleatória com pelo menos 32 caracteres, igual à do ThinDesk>
 ```
 
 O arquivo `.env` está no `.gitignore`, portanto **suas credenciais nunca vão para o GitHub**. A aplicação o lê automaticamente pela linha `spring.config.import=optional:file:.env[.properties]` do `application.properties`.
@@ -150,6 +153,36 @@ O arquivo `.env` está no `.gitignore`, portanto **suas credenciais nunca vão p
 > Se a senha do banco tiver caracteres especiais (`@`, `:`, `/`, `%`, `#`), eles precisam ser codificados na URI (ex.: `@` vira `%40`). O mais simples é usar a senha gerada automaticamente pelo Atlas, que só tem letras e números.
 
 **Alternativa:** em vez do `.env`, você pode definir as mesmas variáveis de ambiente no sistema ou no IntelliJ (*Run > Edit Configurations > Environment variables*).
+
+---
+
+## API de token (integração com o ThinDesk)
+
+Além das telas, o sistema oferece um endpoint para outros microsserviços:
+
+```http
+POST /api/auth/token
+Content-Type: application/json
+
+{ "email": "ana@exemplo.com", "senha": "MinhaSenha@123" }
+```
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiJ9...",
+  "tipo": "Bearer",
+  "expiraEm": "2026-10-23T13:00:00Z",
+  "usuarioId": "6718f0c2a1b2c3d4e5f60718",
+  "perfil": "USUARIO"
+}
+```
+
+- A autenticação é a mesma da tela: mesmo `AuthenticationManager`, BCrypt, bloqueio por tentativas e contas desativadas.
+- O token é um JWT assinado com HS256 usando a `JWT_SECRET`. Ele carrega `sub` (id do usuário), `email`, `nome` e `perfil`, e vale 60 minutos.
+- O ThinDesk usa a **mesma** `JWT_SECRET` para validar o token sozinho, sem consultar este sistema.
+- As rotas `/api/**` têm regras próprias no `SecurityConfig`: sem sessão, sem CSRF e resposta 401 em vez de redirecionar para a tela de login. As telas continuam funcionando como antes.
+
+Erros: `400` sem e-mail ou senha; `401` com `{"erro": "..."}` para senha errada, conta bloqueada ou desativada.
 
 ---
 
