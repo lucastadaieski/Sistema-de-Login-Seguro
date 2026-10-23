@@ -1,14 +1,9 @@
 package br.com.lucas.loginseguro.model;
 
-/**
- * Perfis (roles) do sistema, do menor para o maior privilégio.
- *
- * A hierarquia é configurada em {@code SecurityConfig}:
- * ADMIN herda tudo de MODERADOR, que herda tudo de USUARIO.
- */
 public enum Perfil {
 
     USUARIO("Usuário"),
+    TECNICO("Técnico"),
     MODERADOR("Moderador"),
     ADMIN("Administrador");
 
