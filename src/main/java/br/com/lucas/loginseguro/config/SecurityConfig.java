@@ -2,32 +2,32 @@ package br.com.lucas.loginseguro.config;
 
 import br.com.lucas.loginseguro.web.LoginFalhaHandler;
 import br.com.lucas.loginseguro.web.LoginSucessoHandler;
+import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 
-/**
- * Configuração central do Spring Security.
- *
- * Resumo das decisões:
- * 1. Senhas com hash BCrypt via DelegatingPasswordEncoder (o prefixo {bcrypt}
- *    permite trocar de algoritmo no futuro sem invalidar senhas antigas).
- * 2. Autorização em duas camadas:
- *    a) por URL, aqui no SecurityFilterChain;
- *    b) por método, com @PreAuthorize nos serviços (@EnableMethodSecurity).
- * 3. Hierarquia de perfis: ADMIN > MODERADOR > USUARIO, evitando repetir regras.
- * 4. CSRF ativo (padrão); o Thymeleaf insere o token nos formulários sozinho.
- * 5. Cabeçalhos de segurança: Content-Security-Policy e bloqueio de iframes.
- */
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -35,7 +35,7 @@ public class SecurityConfig {
 
     /**
      * Hierarquia de perfis. Quem é ADMIN automaticamente passa nas regras
-     * de MODERADOR e de USUARIO.
+     * de MODERADOR, TECNICO e USUARIO.
      * (Método estático: recomendação do Spring para beans usados pela
      * segurança de métodos, evitando inicialização antecipada da classe.)
      */
@@ -43,7 +43,9 @@ public class SecurityConfig {
     static RoleHierarchy roleHierarchy() {
         return RoleHierarchyImpl.fromHierarchy("""
                 ROLE_ADMIN > ROLE_MODERADOR
+                ROLE_ADMIN > ROLE_TECNICO
                 ROLE_MODERADOR > ROLE_USUARIO
+                ROLE_TECNICO > ROLE_USUARIO
                 """);
     }
 
@@ -67,7 +69,41 @@ public class SecurityConfig {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
+    /** Mesmo autenticador do login pela tela, reutilizado pela API de token. */
     @Bean
+    AuthenticationManager authenticationManager(AuthenticationConfiguration configuracao) throws Exception {
+        return configuracao.getAuthenticationManager();
+    }
+
+    /** Assina os tokens JWT com a chave app.jwt.segredo (HS256). */
+    @Bean
+    JwtEncoder jwtEncoder(JwtProperties jwt) {
+        SecretKeySpec chave = new SecretKeySpec(jwt.segredo().getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+        return new NimbusJwtEncoder(new ImmutableSecret<>(chave));
+    }
+
+    /**
+     * Regras da API (/api/**). Cliente de API não tem formulário nem cookie,
+     * por isso não há sessão nem CSRF, e erros devolvem 401 em vez de
+     * redirecionar para a página de login.
+     */
+    @Bean
+    @Order(1)
+    SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .securityMatcher("/api/**")
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.POST, "/api/auth/token").permitAll()
+                .anyRequest().denyAll())
+            .exceptionHandling(ex -> ex.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
+        return http.build();
+    }
+
+    /** Regras das telas (todo o resto). */
+    @Bean
+    @Order(2)
     SecurityFilterChain securityFilterChain(HttpSecurity http,
                                             LoginSucessoHandler sucessoHandler,
                                             LoginFalhaHandler falhaHandler) throws Exception {
